@@ -19,7 +19,7 @@
     <wildfly.version>10.0.0.Final</wildfly.version>
     <junit.version>4.12</junit.version>
     <slf4j.version>1.7.12</slf4j.version>
-    <resteasy.version>3.0.5.Final</resteasy.version>
+    <citrus.version>2.6-SNAPSHOT</citrus.version>
   </properties>
 
   <prerequisites>
@@ -70,23 +70,29 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Rest client implementation -->
+    <!-- Citrus -->
     <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-client</artifactId>
-      <version>${resteasy.version}</version>
+      <groupId>com.consol.citrus</groupId>
+      <artifactId>citrus-core</artifactId>
+      <version>${citrus.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-jaxb-provider</artifactId>
-      <version>${resteasy.version}</version>
+      <groupId>com.consol.citrus</groupId>
+      <artifactId>citrus-http</artifactId>
+      <version>${citrus.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.resteasy</groupId>
-      <artifactId>resteasy-json-p-provider</artifactId>
-      <version>${resteasy.version}</version>
+      <groupId>com.consol.citrus</groupId>
+      <artifactId>citrus-java-dsl</artifactId>
+      <version>${citrus.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.consol.citrus</groupId>
+      <artifactId>citrus-arquillian</artifactId>
+      <version>${citrus.version}</version>
       <scope>test</scope>
     </dependency>
 

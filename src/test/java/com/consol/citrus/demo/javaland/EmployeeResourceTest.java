@@ -16,8 +16,12 @@
 
 package com.consol.citrus.demo.javaland;
 
+import com.consol.citrus.Citrus;
+import com.consol.citrus.annotations.*;
 import com.consol.citrus.demo.javaland.model.Employee;
 import com.consol.citrus.demo.javaland.model.Employees;
+import com.consol.citrus.dsl.design.TestDesigner;
+import com.consol.citrus.message.MessageType;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -28,22 +32,19 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import java.net.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @RunWith(Arquillian.class)
 @RunAsClient
 public class EmployeeResourceTest {
 
-    private WebTarget webTarget;
+    @CitrusFramework
+    private Citrus citrusFramework;
+
     private String serviceUri;
 
     @ArquillianResource
@@ -60,118 +61,193 @@ public class EmployeeResourceTest {
     @Before
     public void setUp() throws MalformedURLException {
         serviceUri = new URL(baseUri, "registry/employee").toExternalForm();
-
-        webTarget = ClientBuilder.newClient().target(URI.create(serviceUri));
-        webTarget.register(Employee.class);
     }
 
     @Test
     @InSequence(1)
-    public void testPostAndGet() {
-        MultivaluedHashMap<String, String> map = new MultivaluedHashMap<>();
-        map.add("name", "Penny");
-        map.add("age", "20");
-        webTarget.request().post(Entity.form(map));
+    @CitrusTest
+    public void testPostAndGet(@CitrusResource TestDesigner citrus) {
+        citrus.http().client(serviceUri)
+                .post()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .payload("name=Penny&age=20");
 
-        map.clear();
-        map.add("name", "Leonard");
-        map.add("age", "21");
-        webTarget.request().post(Entity.form(map));
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.NO_CONTENT);
 
-        map.clear();
-        map.add("name", "Sheldon");
-        map.add("age", "22");
-        webTarget.request().post(Entity.form(map));
+        citrus.http().client(serviceUri)
+                .post()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .payload("name=Leonard&age=21");
 
-        Employee[] list = webTarget.request().get(Employee[].class);
-        assertEquals(3, list.length);
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.NO_CONTENT);
 
-        assertEquals("Penny", list[0].getName());
-        assertEquals(20, list[0].getAge());
+        citrus.http().client(serviceUri)
+                .post()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .payload("name=Sheldon&age=22");
 
-        assertEquals("Leonard", list[1].getName());
-        assertEquals(21, list[1].getAge());
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.NO_CONTENT);
 
-        assertEquals("Sheldon", list[2].getName());
-        assertEquals(22, list[2].getAge());
+        citrus.http().client(serviceUri)
+                .get()
+                .accept(MediaType.APPLICATION_XML);
+
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.OK)
+                .payload("<employees>" +
+                            "<employee>" +
+                                "<age>20</age>" +
+                                "<name>Penny</name>" +
+                            "</employee>" +
+                            "<employee>" +
+                                "<age>21</age>" +
+                                "<name>Leonard</name>" +
+                            "</employee>" +
+                            "<employee>" +
+                                "<age>22</age>" +
+                                "<name>Sheldon</name>" +
+                            "</employee>" +
+                        "</employees>");
+
+        citrusFramework.run(citrus.getTestCase());
     }
 
     @Test
     @InSequence(2)
-    public void testGetSingle() {
-        Employee p = webTarget
-                .path("{id}")
-                .resolveTemplate("id", "1")
-                .request(MediaType.APPLICATION_XML)
-                .get(Employee.class);
-        assertEquals("Leonard", p.getName());
-        assertEquals(21, p.getAge());
+    @CitrusTest
+    public void testGetSingle(@CitrusResource TestDesigner citrus) {
+        citrus.http().client(serviceUri)
+                .get("/1")
+                .accept(MediaType.APPLICATION_XML);
+
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.OK)
+                .payload("<employee>" +
+                            "<age>21</age>" +
+                            "<name>Leonard</name>" +
+                        "</employee>");
+
+        citrusFramework.run(citrus.getTestCase());
     }
 
     @Test
     @InSequence(3)
-    public void testPut() {
-        MultivaluedHashMap<String, String> map = new MultivaluedHashMap<>();
-        map.add("name", "Howard");
-        map.add("age", "21");
-        webTarget.request().post(Entity.form(map));
+    @CitrusTest
+    public void testPut(@CitrusResource TestDesigner citrus) {
+        citrus.http().client(serviceUri)
+                .put()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .payload("name=Howard&age=21&email=howard@example.com");
 
-        Employee[] list = webTarget.request().get(Employee[].class);
-        assertEquals(4, list.length);
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.NO_CONTENT);
 
-        assertEquals("Howard", list[3].getName());
-        assertEquals(21, list[3].getAge());
+        citrus.http().client(serviceUri)
+                .get()
+                .accept(MediaType.APPLICATION_XML);
+
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.OK)
+                .payload("<employees>" +
+                            "<employee>" +
+                                "<age>20</age>" +
+                                "<name>Penny</name>" +
+                            "</employee>" +
+                            "<employee>" +
+                                "<age>21</age>" +
+                                "<name>Leonard</name>" +
+                            "</employee>" +
+                            "<employee>" +
+                                "<age>22</age>" +
+                                "<name>Sheldon</name>" +
+                            "</employee>" +
+                            "<employee>" +
+                                "<age>21</age>" +
+                                "<name>Howard</name>" +
+                                "<email>howard@example.com</email>" +
+                            "</employee>" +
+                        "</employees>");
+
+        citrusFramework.run(citrus.getTestCase());
     }
 
     @Test
     @InSequence(4)
-    public void testDelete() {
-        webTarget
-                .path("{name}")
-                .resolveTemplate("name", "Leonard")
-                .request()
-                .delete();
-        Employee[] list = webTarget.request().get(Employee[].class);
-        assertEquals(3, list.length);
+    @CitrusTest
+    public void testDelete(@CitrusResource TestDesigner citrus) {
+        citrus.http().client(serviceUri)
+                .delete("/Leonard");
+
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.NO_CONTENT);
+
+        citrus.http().client(serviceUri)
+                .get()
+                .accept(MediaType.APPLICATION_XML);
+
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.OK)
+                .payload("<employees>" +
+                            "<employee>" +
+                                "<age>20</age>" +
+                                "<name>Penny</name>" +
+                            "</employee>" +
+                            "<employee>" +
+                                "<age>22</age>" +
+                                "<name>Sheldon</name>" +
+                            "</employee>" +
+                            "<employee>" +
+                                "<age>21</age>" +
+                                "<name>Howard</name>" +
+                                "<email>howard@example.com</email>" +
+                            "</employee>" +
+                        "</employees>");
+
+        citrusFramework.run(citrus.getTestCase());
     }
 
     @Test
     @InSequence(5)
-    public void testClientSideNegotiation() {
-        JsonObject json = webTarget.request().accept(MediaType.APPLICATION_JSON).get(JsonObject.class);
-        JsonArray employees = json.getJsonArray("employee");
-        assertEquals(3, employees.size());
+    @CitrusTest
+    public void testClientSideNegotiation(@CitrusResource TestDesigner citrus) {
+        citrus.http().client(serviceUri)
+                .get()
+                .accept(MediaType.APPLICATION_JSON);
 
-        for(int i = 0; i < employees.size(); i++) {
-           JsonObject employee = employees.getJsonObject(i);
-           String name = employee.getString("name");
-           int age = employee.getInt("age");
-           
-           if("Penny".equals(name)) {
-              assertEquals(20,  age);
-           } else if("Howard".equals(name)) {
-              assertEquals(21,  age);
-           } else if("Sheldon".equals(name)) {
-              assertEquals(22,  age);
-           } else {
-              fail("Unknown Employee returned [" + name + ", " + age + "]");
-           }
-        }
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.OK)
+                .messageType(MessageType.JSON)
+                .payload("{\"employee\":[" +
+                            "{\"name\":\"Penny\",\"age\":20,\"email\":null}," +
+                            "{\"name\":\"Sheldon\",\"age\":22,\"email\":null}," +
+                            "{\"name\":\"Howard\",\"age\":21,\"email\":\"howard@example.com\"}" +
+                        "]}");
+
+        citrusFramework.run(citrus.getTestCase());
     }
 
     @Test
     @InSequence(6)
-    public void testDeleteAll() {
-        Employee[] list = webTarget.request().get(Employee[].class);
-        for (Employee p : list) {
-            webTarget
-                    .path("{name}")
-                    .resolveTemplate("name", p.getName())
-                    .request()
-                    .delete();
-        }
-        list = webTarget.request().get(Employee[].class);
-        assertEquals(0, list.length);
+    @CitrusTest
+    public void testDeleteAll(@CitrusResource TestDesigner citrus) {
+        citrus.http().client(serviceUri)
+                .delete();
+
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.NO_CONTENT);
+
+        citrus.http().client(serviceUri)
+                .get()
+                .accept(MediaType.APPLICATION_XML);
+
+        citrus.http().client(serviceUri)
+                .response(HttpStatus.OK)
+                .payload("<employees></employees>");
+
+        citrusFramework.run(citrus.getTestCase());
     }
 
 }
