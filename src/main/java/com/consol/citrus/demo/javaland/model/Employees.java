@@ -26,13 +26,13 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Employees {
 
-   private List<Employee> employee = new ArrayList<>();
+    private List<Employee> employee = new ArrayList<>();
 
-   public List<Employee> getEmployees() {
-      return employee;
-   }
+    public List<Employee> getEmployees() {
+        return employee;
+    }
 
-   public void setEmployees(List<Employee> employees) {
-      this.employee = employees;
-   }
+    public void setEmployees(List<Employee> employees) {
+        this.employee = employees;
+    }
 }

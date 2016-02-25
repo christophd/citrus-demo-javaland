@@ -18,6 +18,7 @@ package com.consol.citrus.demo.javaland;
 
 import com.consol.citrus.Citrus;
 import com.consol.citrus.annotations.*;
+import com.consol.citrus.demo.javaland.mail.MailService;
 import com.consol.citrus.demo.javaland.model.Employee;
 import com.consol.citrus.demo.javaland.model.Employees;
 import com.consol.citrus.dsl.design.TestDesigner;
@@ -54,7 +55,7 @@ public class EmployeeResourceTest {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
                 .addClasses(
-                        RegistryApplication.class, EmployeeResource.class, Employees.class,
+                        RegistryApplication.class, MailService.class, EmployeeResource.class, Employees.class,
                         Employee.class, EmployeeRepository.class);
     }
 
