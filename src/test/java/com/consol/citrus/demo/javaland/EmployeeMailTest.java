@@ -73,17 +73,21 @@ public class EmployeeMailTest {
     @Test
     @CitrusTest
     public void testPostWithWelcomeEmail(@CitrusResource TestDesigner citrus) {
+        citrus.variable("employee.name", "Rajesh");
+        citrus.variable("employee.age", "20");
+        citrus.variable("employee.email", "rajesh@example.com");
+
         citrus.http().client(serviceUri)
                 .post()
                 .fork(true)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .payload("name=Rajesh&age=20&email=rajesh@example.com");
+                .payload("name=${employee.name}&age=${employee.age}&email=${employee.email}");
 
         citrus.receive(mailServer)
                 .payload(new ClassPathResource("templates/welcome-mail.xml"))
                 .header(CitrusMailMessageHeaders.MAIL_SUBJECT, "Welcome new employee")
                 .header(CitrusMailMessageHeaders.MAIL_FROM, "employee-registry@example.com")
-                .header(CitrusMailMessageHeaders.MAIL_TO, "rajesh@example.com");
+                .header(CitrusMailMessageHeaders.MAIL_TO, "${employee.email}");
 
         citrus.send(mailServer)
                 .payload(new ClassPathResource("templates/welcome-mail-response.xml"));
@@ -98,11 +102,11 @@ public class EmployeeMailTest {
         citrus.http().client(serviceUri)
                 .response(HttpStatus.OK)
                 .payload("<employees>" +
-                            "<employee>" +
-                                "<age>20</age>" +
-                                "<name>Rajesh</name>" +
-                                "<email>rajesh@example.com</email>" +
-                            "</employee>" +
+                        "<employee>" +
+                        "<age>${employee.age}</age>" +
+                        "<name>${employee.name}</name>" +
+                        "<email>${employee.email}</email>" +
+                        "</employee>" +
                         "</employees>");
 
         citrusFramework.run(citrus.getTestCase());
