@@ -18,9 +18,6 @@ package com.consol.citrus.demo.javaland;
 
 import com.consol.citrus.Citrus;
 import com.consol.citrus.annotations.*;
-import com.consol.citrus.demo.javaland.mail.MailService;
-import com.consol.citrus.demo.javaland.model.Employee;
-import com.consol.citrus.demo.javaland.model.Employees;
 import com.consol.citrus.dsl.design.TestDesigner;
 import com.consol.citrus.message.MessageType;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -28,7 +25,6 @@ import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,10 +49,7 @@ public class EmployeeResourceTest {
 
     @Deployment(testable = false)
     public static WebArchive createDeployment() {
-        return ShrinkWrap.create(WebArchive.class)
-                .addClasses(
-                        RegistryApplication.class, MailService.class, EmployeeResource.class, Employees.class,
-                        Employee.class, EmployeeRepository.class);
+        return Deployments.employeeWebRegistry();
     }
 
     @Before
@@ -222,9 +215,9 @@ public class EmployeeResourceTest {
                 .response(HttpStatus.OK)
                 .messageType(MessageType.JSON)
                 .payload("{\"employee\":[" +
-                            "{\"name\":\"Penny\",\"age\":20,\"email\":null}," +
-                            "{\"name\":\"Sheldon\",\"age\":22,\"email\":null}," +
-                            "{\"name\":\"Howard\",\"age\":21,\"email\":\"howard@example.com\"}" +
+                            "{\"name\":\"Penny\",\"age\":20,\"email\":null,\"mobile\":null}," +
+                            "{\"name\":\"Sheldon\",\"age\":22,\"email\":null,\"mobile\":null}," +
+                            "{\"name\":\"Howard\",\"age\":21,\"email\":\"howard@example.com\",\"mobile\":null}" +
                         "]}");
 
         citrusFramework.run(citrus.getTestCase());

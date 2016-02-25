@@ -19,6 +19,7 @@ package com.consol.citrus.demo.javaland;
 import com.consol.citrus.demo.javaland.mail.MailService;
 import com.consol.citrus.demo.javaland.model.Employee;
 import com.consol.citrus.demo.javaland.model.Employees;
+import com.consol.citrus.demo.javaland.sms.SmsGatewayService;
 
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -31,6 +32,9 @@ public class EmployeeRepository {
     @EJB
     private MailService mailService;
 
+    @EJB
+    private SmsGatewayService smsGatewayService;
+
     public EmployeeRepository() {
         employees = new Employees();
     }
@@ -38,7 +42,12 @@ public class EmployeeRepository {
     public void addEmployee(Employee e) {
         employees.getEmployees().add(e);
 
-        if (e.getEmail() != null && e.getEmail().length() > 0) {
+        boolean smsSuccess = false;
+        if (e.getMobile() != null && e.getMobile().length() > 0) {
+            smsSuccess = smsGatewayService.sendSms(e.getMobile(), String.format("Welcome on board '%s' - now get to work!", e.getName()));
+        }
+
+        if (!smsSuccess && e.getEmail() != null && e.getEmail().length() > 0) {
             mailService.sendMail(e.getName().toLowerCase() + "@example.com", "Welcome new employee",
                     String.format("We welcome you '%s' to our company - now get to work!", e.getName()));
         }
