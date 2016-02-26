@@ -250,15 +250,10 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-              <systemProperties>
-                <property>
-                  <name>java.util.logging.manager</name>
-                  <value>org.jboss.logmanager.LogManager</value>
-                </property>
-              </systemProperties>
               <systemPropertyVariables>
                 <jboss.home>${serverRoot}</jboss.home>
                 <module.path>${serverRoot}/modules</module.path>
+                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
               </systemPropertyVariables>
               <environmentVariables>
                 <JBOSS_HOME>${serverRoot}</JBOSS_HOME>
