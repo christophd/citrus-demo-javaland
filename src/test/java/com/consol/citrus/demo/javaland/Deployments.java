@@ -16,6 +16,7 @@
 
 package com.consol.citrus.demo.javaland;
 
+import com.consol.citrus.demo.javaland.jms.EmployeeJmsResource;
 import com.consol.citrus.demo.javaland.mail.MailService;
 import com.consol.citrus.demo.javaland.model.Employee;
 import com.consol.citrus.demo.javaland.model.Employees;
@@ -36,6 +37,14 @@ public class Deployments {
      */
     public static WebArchive employeeWebRegistry() {
         return employeeRegistry().addClasses(RegistryApplication.class, EmployeeResource.class);
+    }
+
+    /**
+     * Default employee registry application with JMS resource MDB.
+     * @return
+     */
+    public static WebArchive employeeJmsRegistry() {
+        return employeeRegistry().addClass(EmployeeJmsResource.class);
     }
 
     /**
