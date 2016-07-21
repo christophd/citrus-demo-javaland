@@ -37,7 +37,7 @@ For more information on Arquillian see [www.arquillian.org][4].
 For more information on Citrus see [www.citrusframework.org][2], including
 a complete [reference manual][3].
 
- [1]: http://www.citrusframework.org/images/brand_logo.png "Citrus"
+ [1]: http://www.citrusframework.org/img/brand-logo.png "Citrus"
  [2]: http://www.citrusframework.org
  [3]: http://www.citrusframework.org/reference/html/
  [4]: http://www.arquillian.org
